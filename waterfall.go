@@ -1,6 +1,7 @@
 package waterfall
 
 import (
+	"fmt"
 	"github.com/ismdeep/log"
 	"sync"
 	"time"
@@ -18,11 +19,18 @@ type funcInfo struct {
 	Func func() error
 }
 
+// 信号
+type signalInfo struct {
+	name   string
+	signal int
+}
+
 // waterfall struct of waterfall
 type waterfall struct {
 	FuncList     []funcInfo
 	Dependencies map[string][]string
 	status       int
+	signals      chan signalInfo
 }
 
 // New create waterfall
@@ -31,6 +39,7 @@ func New() *waterfall {
 		FuncList:     []funcInfo{},
 		Dependencies: make(map[string][]string),
 		status:       StatusPending,
+		signals:      make(chan signalInfo),
 	}
 }
 
@@ -67,8 +76,17 @@ func (receiver *waterfall) NaiveRun() error {
 	return nil
 }
 
+func (receiver *waterfall) StartRunner() {
+	for {
+		signal := <-receiver.signals
+		fmt.Println(signal)
+	}
+}
+
 // Run start flow
 func (receiver *waterfall) Run() {
+	// 1. 初始化状态表
+
 	wg := &sync.WaitGroup{}
 	for _, f := range receiver.FuncList {
 		wg.Add(1)
