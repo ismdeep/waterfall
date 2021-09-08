@@ -84,7 +84,7 @@ func (receiver *waterfall) StartRunner() {
 }
 
 // Run start flow
-func (receiver *waterfall) Run() {
+func (receiver *waterfall) Run() error {
 	// 1. 初始化状态表
 
 	wg := &sync.WaitGroup{}
@@ -102,4 +102,6 @@ func (receiver *waterfall) Run() {
 		}(&f)
 	}
 	wg.Wait()
+
+	return nil
 }
